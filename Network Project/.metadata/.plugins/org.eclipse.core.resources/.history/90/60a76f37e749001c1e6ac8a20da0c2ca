@@ -1,0 +1,112 @@
+import java.io.*; 
+import java.net.*;
+import java.text.SimpleDateFormat;
+import java.util.Date; 
+
+class Server {
+	
+	public static Double calculate(String exp) {
+		
+        String parsedExp = exp.replaceAll(" ","");
+        
+        String [] parsedArray;
+        
+        
+        try {
+            if(parsedExp.contains("-")) {
+            	parsedArray = parsedExp.split("-");
+            	return Double.parseDouble(parsedArray[0]) - Double.parseDouble(parsedArray[1]);
+            }else if(parsedExp.contains("+")) {
+            	parsedArray = parsedExp.split("\\+");
+            	return Double.parseDouble(parsedArray[0]) + Double.parseDouble(parsedArray[1]);
+            }else if(parsedExp.contains("/")) {
+            	parsedArray = parsedExp.split("/");
+            	return Double.parseDouble(parsedArray[0]) / Double.parseDouble(parsedArray[1]);
+            }else if(parsedExp.contains("*")) {
+            	parsedArray = parsedExp.split("\\*");
+            	return Double.parseDouble(parsedArray[0]) * Double.parseDouble(parsedArray[1]);
+            }
+        }catch(NullPointerException e) {
+        	return null;
+        }
+    
+        return null;
+        
+	}
+	public static void main(String argv[]) throws Exception { 
+      System.out.println(calculate("45"));
+
+      ServerSocket welcomeSocket = new ServerSocket(6000);// create a socket to receive request from client
+      
+      	while(!welcomeSocket.isClosed()) { // while the socket created is open
+      		 
+
+      		 Socket connectionSocket = welcomeSocket.accept(); // open the socket for to receive connection request client
+      		 
+      		 new ServerThread(connectionSocket).start();
+
+             
+      	}
+      	
+      welcomeSocket.close();
+	} 
+
+}
+class ServerThread extends Thread {
+    public Socket connectionSocket;
+
+    public ServerThread(Socket clientSocket) {
+        this.connectionSocket = clientSocket;
+    }
+
+    public void run() {
+    	String clientSentence; 
+        String result;
+        
+    	long start = System.nanoTime(); // when the client connection is accepted start the timer
+		SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
+	    Date date = new Date(System.currentTimeMillis());
+	    String ipAddress = connectionSocket.getRemoteSocketAddress().toString();
+	    
+	    System.out.println("IP address of connected client was " + ipAddress);
+	    System.out.println("Client was connected to the server at "+formatter.format(date));
+ 	     
+ 		BufferedReader inFromClient;
+ 		DataOutputStream outToClient;
+		
+ 		try {
+			inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+			outToClient= new DataOutputStream(connectionSocket.getOutputStream());
+			 while(!connectionSocket.isClosed()) { // while the connection with client is still connected 
+	           	 
+				 clientSentence = inFromClient.readLine(); // receive any data from client
+	           	 
+	           	 if(clientSentence == null) { // if client's response is null, means that the connection has been terminated
+	           		 connectionSocket.close(); // close the connection with the client
+	           		 
+	           		 long finish = System.nanoTime();
+	           		 long timeElapsed = (finish - start)/ 1_000_000_000;
+	           		 
+	           		 System.out.println("Client Disconnected");
+	           		 System.out.println("Client was connect for "+timeElapsed + " seconds");
+	           		 System.out.println("IP address of connected client was " + connectionSocket.getInetAddress());
+	           		 System.out.println("Client was connected to the server at "+formatter.format(date));
+	           		 
+	           	 }else { // if client is still connected, respond
+	           		 
+	           		 	result = Server.calculate(clientSentence) != null ? 
+	           		 			 Server.calculate(clientSentence).toString() + '\n':
+	           		 			 "Error, Entered Expression could not be calculated, please recheck the expression entered";
+	                    
+	                    outToClient.writeBytes(result);
+	           	 }
+	           	 
+	          }
+		} catch (IOException e) {
+			System.out.println(e);
+		} 
+    }
+}
+ 
+
+        
