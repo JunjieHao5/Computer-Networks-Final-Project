@@ -52,7 +52,7 @@ class Server {
 	} 
 
 }
-class ServerThread extends Thread {
+  class ServerThread extends Thread {
     public Socket connectionSocket;
 
     public ServerThread(Socket clientSocket) {
@@ -97,7 +97,7 @@ class ServerThread extends Thread {
 	           		 	result = Server.calculate(clientSentence) != null ? 
 	           		 			 Server.calculate(clientSentence).toString() + '\n':
 	           		 			 "Error" + '\n';
-	           		 	
+	           		 	System.out.println(clientSentence + "=" +result);
 	                    outToClient.writeBytes(result);
 	           	 }
 	           	 
