@@ -1,10 +1,12 @@
 import java.io.*; 
 import java.net.*; 
+import java.text.*;
+import java.util.Date;
 class Client { 
 
     public static void main(String argv[]) throws Exception 
     { 
-        String sentence; 
+        String instruction; 
         String modifiedSentence; 
         
         BufferedReader inFromUser = 
@@ -22,6 +24,9 @@ class Client {
         String UserInput = new String();
         	
         int NumofInput = 0;
+        
+        instruction = inFromServer.readLine();
+        System.out.println(instruction);
         
         while(true) {
         	
@@ -48,7 +53,10 @@ class Client {
                     
         }
         	 
-	        clientSocket.close(); 
+	        clientSocket.close();
+	        SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z"); // to format the date in a way that is easy to read for users
+        	String disconInfo = MessageFormat.format("Disconnected from server at {0}",formatter.format(new Date(System.currentTimeMillis())));
+        	System.out.println(disconInfo);
 	        
           
     } 
