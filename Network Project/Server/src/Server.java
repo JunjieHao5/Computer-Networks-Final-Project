@@ -9,21 +9,29 @@ class Server {
 	public static int reqnum = 0; // assign a reqnum number to each request that was sent from client, ex- first request will have reqnum number 1
 	public static int handled = 0;// this number indicates till what number the requests have been handled, ex if handled = 4, it means that the request from 1 - 4 has been handled successfully
 	
-	public static void main(String argv[]) throws Exception { 
+	public static void main(String argv[]) throws Exception {
+	
+		try {
+			 ServerSocket welcomeSocket = new ServerSocket(6000);// create a socket to receive request from client
+		      
+		      	while(!welcomeSocket.isClosed()) { // while the socket created is open
+		      		 
 
-      ServerSocket welcomeSocket = new ServerSocket(6000);// create a socket to receive request from client
-      
-      	while(!welcomeSocket.isClosed()) { // while the socket created is open
-      		 
+		      		 Socket connectionSocket = welcomeSocket.accept(); // open the socket and receive connection request from client
+		      		 
+		      		 new ServerThread(connectionSocket).start(); // create a new thread for each client
 
-      		 Socket connectionSocket = welcomeSocket.accept(); // open the socket and receive connection request from client
-      		 
-      		 new ServerThread(connectionSocket).start(); // create a new thread for each client
-
-             
-      	}
-      	
-      welcomeSocket.close(); // close the socket, but it might never called since the server should always be running to handle client request
+		             
+		      	}
+		      	
+		      welcomeSocket.close(); // close the socket, but it might never called since the server should always be running to handle client request
+		}catch(Exception e) {
+			if(e instanceof BindException) {
+    			System.out.println("Error: The server is not on yet, please retry later");
+    		}else {
+    			System.out.println(e);
+    		}
+		}
 	} 
 
 }
@@ -104,14 +112,14 @@ class Server {
     
     // function to print info of the client when it is connected with the server on console and logfile
     public void printConnectedMsg(String Hostname,String ipAddress,Date date,SimpleDateFormat formatter) {
-    	String connectedMsg = MessageFormat.format("Client Connected! Host {0} with IPaddress {1} connected at {2} ",Hostname, ipAddress,formatter.format(date));
+    	String connectedMsg = MessageFormat.format("Client Connected! Host: {0} with IPaddress {1} connected at {2} ",Hostname, ipAddress,formatter.format(date));
 	    System.out.println(connectedMsg);
 	    writeToFile(connectedMsg);// function - print connected clients info
     }
     // function to  print info of the client when it is disconnects from the server on console and logfile 
     public void printDisconMsg(String ipAddress,long timeElapsed,SimpleDateFormat formatter) {
     	String disconMsg = MessageFormat.format("Client with Ipaddress {0} has disconnected",ipAddress);
-   		String disconInfo = MessageFormat.format("Client with was connected for {0} and got disconnected at {1}",timeElapsed,formatter.format(new Date(System.currentTimeMillis())));
+   		String disconInfo = MessageFormat.format("Client was connected for {0} seconds and got disconnected at {1}",timeElapsed,formatter.format(new Date(System.currentTimeMillis())));
 	    System.out.println(disconMsg);
 	    System.out.println(disconInfo);
 	    writeToFile(disconMsg);
