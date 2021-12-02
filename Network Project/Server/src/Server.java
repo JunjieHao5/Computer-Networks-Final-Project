@@ -94,7 +94,7 @@ class Server {
 	           		 	String validExpCheck = calculate(clientSentence);
 	           		 	result = validExpCheck!= null ? 
 	           		 			 validExpCheck+ '\n':
-	           		 			 "Error" + '\n';
+	           		 			 "Error Please Enter a valid Math Expression that our calculator can take" + '\n';
 	           		 	
 	           		 	printReqMsg(clientSentence,Hostname,ipAddress,result);// when req received, display who client is and what expression was received
 	           		 	
